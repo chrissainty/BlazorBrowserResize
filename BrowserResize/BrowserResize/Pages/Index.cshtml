@@ -1,0 +1,45 @@
+﻿@page "/"
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+<SurveyPrompt Title="How is Blazor working for you?" />
+
+<p><strong>Inner Height</strong> @InnerHeight</p>
+<p><strong>Inner Width</strong> @InnerWidth</p>
+
+@functions {        
+
+    int InnerHeight = 0;
+    int InnerWidth = 0;
+
+    protected override async Task OnInitAsync()
+    {
+        BrowserResizeService.OnResize += BrowserHasResized;
+
+        await JSRuntime.Current.InvokeAsync<object>("browserResize.registerResizeCallback");
+
+        InnerHeight = GetInnerHeight();
+        InnerWidth = GetInnerWidth();
+    }
+
+    private void BrowserHasResized()
+    {
+        InnerHeight = GetInnerHeight();
+        InnerWidth = GetInnerWidth();
+
+        StateHasChanged();
+    }
+
+    private int GetInnerHeight()
+    {
+        return ((IJSInProcessRuntime)JSRuntime.Current).Invoke<int>("browserResize.getInnerHeight");
+    }
+
+    private int GetInnerWidth()
+    {
+        return ((IJSInProcessRuntime)JSRuntime.Current).Invoke<int>("browserResize.getInnerWidth");
+    }
+
+}
