@@ -1,4 +1,5 @@
 ﻿@page "/"
+@implements IDisposable
 
 <h1>Hello, world!</h1>
 
@@ -20,26 +21,21 @@ Welcome to your new app.
 
         await JSRuntime.Current.InvokeAsync<object>("browserResize.registerResizeCallback");
 
-        InnerHeight = GetInnerHeight();
-        InnerWidth = GetInnerWidth();
+        InnerHeight = await BrowserResizeService.GetInnerHeight();
+        InnerWidth = await BrowserResizeService.GetInnerWidth();
     }
 
-    private void BrowserHasResized()
+    private async Task BrowserHasResized()
     {
-        InnerHeight = GetInnerHeight();
-        InnerWidth = GetInnerWidth();
+        InnerHeight = await BrowserResizeService.GetInnerHeight();
+        InnerWidth = await BrowserResizeService.GetInnerWidth();
 
         StateHasChanged();
     }
 
-    private int GetInnerHeight()
+    public void Dispose()
     {
-        return ((IJSInProcessRuntime)JSRuntime.Current).Invoke<int>("browserResize.getInnerHeight");
-    }
-
-    private int GetInnerWidth()
-    {
-        return ((IJSInProcessRuntime)JSRuntime.Current).Invoke<int>("browserResize.getInnerWidth");
+        BrowserResizeService.OnResize -= BrowserHasResized;
     }
 
 }
